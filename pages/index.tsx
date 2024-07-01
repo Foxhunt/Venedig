@@ -1,24 +1,36 @@
-import "@pixi/events";
-import { Graphics, Stage } from "@pixi/react";
+import { ForeignExpectation2D } from "@/types";
+
+import { GetServerSideProps, InferGetServerSidePropsType } from "next";
+import { useState } from "react";
 
 import LineAndDots from "@/components/LineAndDots";
+import Dot from "@/components/Dot";
+import Form from "@/components/Form";
 
-const pairs = [
-  [
-    [0.37149455514736474 * 1920, 0.9695213169325143 * 1080],
-    [0.11320938216522336 * 1920, 0.17448412254452705 * 1080],
-  ],
-  [
-    [0.024208462331444025 * 1920, 0.8042505807243288 * 1080],
-    [0.9416927343700081 * 1920, 0.22548545175231993 * 1080],
-  ],
-  [
-    [0.38654953869991004 * 1920, 0.8692176234908402 * 1080],
-    [0.8144724303856492 * 1920, 0.28146595670841634 * 1080],
-  ],
-];
+import "@pixi/events";
+import { Stage } from "@pixi/react";
 
-export default function Home() {
+import { getPairFromKvList } from "@/application/kv";
+
+export const getServerSideProps = (async () => {
+  // Fetch data from external API
+  const foreignExpectations: ForeignExpectation2D[] = await getPairFromKvList();
+
+  // Pass data to the page via props
+  return { props: { foreignExpectations } };
+}) satisfies GetServerSideProps<{
+  foreignExpectations: ForeignExpectation2D[];
+}>;
+
+export default function Home({
+  foreignExpectations: initialForeignExpectations,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  const [clicks, setClicks] = useState<[number, number][]>([]);
+
+  const [foreignExpectations, setForeignExpectations] = useState(
+    initialForeignExpectations
+  );
+
   return (
     <main
     // className={`flex min-h-screen justify-center items-center`}
@@ -31,29 +43,43 @@ export default function Home() {
           preserveDrawingBuffer: false,
           clearBeforeRender: true,
         }}
-        raf={false}
-        renderOnComponentChange
-        // className="object-contain w-full h-svh"
+        // raf={false}
+        // renderOnComponentChange
+        className="bg-black"
         width={1920}
         height={1080}
+        onPointerMove={({ clientX, clientY }) => {
+          setClicks([[clientX, clientY]]);
+        }}
       >
-        {pairs.map((pair, index) => (
-          <LineAndDots
-            key={index}
-            start={[pair[0][0], pair[0][1]]}
-            end={[pair[1][0], pair[1][1]]}
-          />
-        ))}
-
-        <Graphics
-          draw={(g) => {
-            g.lineStyle(1, 0xffffff);
-
-            g.moveTo(0, 0);
-            g.bezierCurveTo(50, 10, 50, 90, 100, 100);
-          }}
-        />
+        {foreignExpectations.map(
+          ({
+            expectationEmbedding2D,
+            experienceEmbedding2D,
+            expectation,
+            experience,
+            key,
+          }) => (
+            <LineAndDots
+              key={key}
+              expectation={expectation}
+              experience={experience}
+              start={[
+                expectationEmbedding2D[0] * 1920,
+                expectationEmbedding2D[1] * 1080,
+              ]}
+              end={[
+                experienceEmbedding2D[0] * 1920,
+                experienceEmbedding2D[1] * 1080,
+              ]}
+            />
+          )
+        )}
+        {/* {clicks.map((click, index) => (
+          <Dot key={index} position={click} />
+        ))} */}
       </Stage>
+      <Form setForeignExpectations={setForeignExpectations} />
     </main>
   );
 }

@@ -10,7 +10,7 @@ type LineProps = {
 export default function Dot({ start, end }: LineProps) {
   const draw = useCallback(
     (g: PixiGraphics) => {
-      g.clear();
+      // g.clear();
       g.lineStyle(4, 0xffffff);
       g.moveTo(start[0], start[1]);
       g.lineTo(end[0], end[1]);

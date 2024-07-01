@@ -6,11 +6,15 @@ import { useEffect, useState } from "react";
 type LineProps = {
   start: [number, number];
   end: [number, number];
+  expectation: string;
+  experience: string;
 };
 
 export default function LineAndDots({
   start: initialStart,
   end: initialEnd,
+  expectation,
+  experience,
 }: LineProps) {
   const [start, setStart] = useState(initialStart);
   useEffect(() => {
@@ -24,8 +28,8 @@ export default function LineAndDots({
   return (
     <Container>
       <Line start={start} end={end} />
-      <Dot position={start} />
-      <Dot position={end} />
+      <Dot text={expectation} position={start} isStart />
+      <Dot text={experience} position={end} />
     </Container>
   );
 }
