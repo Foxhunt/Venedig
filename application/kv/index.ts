@@ -16,7 +16,7 @@ export async function getPairFromKvList(): Promise<ForeignExpectation2D[]> {
 
   if (embeddings.length > 0) {
     const reduction = new UMAP(embeddings, {
-      n_neighbors: 24,
+      n_neighbors: 1,
     });
 
     return pairs.map(({ expectation, experience, key }, index) => ({
