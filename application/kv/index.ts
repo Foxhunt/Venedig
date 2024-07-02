@@ -2,12 +2,18 @@ import { ForeignExpectation, ForeignExpectation2D } from "@/types";
 import { UMAP, cosine, TSNE, TriMap } from "@saehrimnir/druidjs";
 import { kv } from "@vercel/kv";
 
-export async function getPairFromKvList(): Promise<ForeignExpectation2D[]> {
-  // await kv.del("pairs");
+export async function getForeignExpectationsFromKvList(): Promise<
+  ForeignExpectation2D[]
+> {
+  // await kv.del(foreignExpectations);
 
-  const pairs = await kv.lrange<ForeignExpectation>("pairs", 0, -1);
+  const foreignExpectations = await kv.lrange<ForeignExpectation>(
+    "foreignExpectations",
+    0,
+    -1
+  );
 
-  const embeddings = pairs.flatMap(
+  const embeddings = foreignExpectations.flatMap(
     ({ expectationEmbedding, experienceEmbedding }) => [
       expectationEmbedding,
       experienceEmbedding,
@@ -33,19 +39,22 @@ export async function getPairFromKvList(): Promise<ForeignExpectation2D[]> {
       (y - min) / (max - min),
     ]);
 
-    return pairs.map(({ expectation, experience, key }, index) => ({
-      expectation,
-      experience,
-      key,
-      expectationEmbedding2D: Array.from(normalizedProjection[index * 2]),
-      experienceEmbedding2D: Array.from(normalizedProjection[index * 2 + 1]),
-    }));
+    return foreignExpectations.map(
+      ({ expectation, experience, key }, index) => ({
+        expectation,
+        experience,
+        key,
+        expectationEmbedding2D: Array.from(normalizedProjection[index * 2]),
+        experienceEmbedding2D: Array.from(normalizedProjection[index * 2 + 1]),
+      })
+    );
   } else {
     return [];
   }
 }
 
-export async function addPairToKvList(pair: ForeignExpectation) {
-  await kv.lpush<ForeignExpectation>("pairs", pair);
-  return getPairFromKvList();
+export async function addForeignExpectationToKvList(
+  foreignExpectation: ForeignExpectation
+) {
+  await kv.lpush<ForeignExpectation>("foreignExpectations", foreignExpectation);
 }

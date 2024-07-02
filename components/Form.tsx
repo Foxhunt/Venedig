@@ -10,7 +10,7 @@ export default function Form({ setForeignExpectations }: FormProps) {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
-    const response = await fetch("/api/addPair", {
+    const response = await fetch("/api/addForeignExpectations", {
       method: "POST",
       body: JSON.stringify(Object.fromEntries(formData.entries())),
     });

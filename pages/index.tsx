@@ -10,12 +10,13 @@ import LineAndDots from "@/components/LineAndDots";
 import "@pixi/events";
 import { Container, Stage } from "@pixi/react";
 
-import { getPairFromKvList } from "@/application/kv";
+import { getForeignExpectationsFromKvList } from "@/application/kv";
 import { intersect } from "@/application/math";
 
 export const getStaticProps = (async () => {
   // Fetch data from external API
-  const foreignExpectations: ForeignExpectation2D[] = await getPairFromKvList();
+  const foreignExpectations: ForeignExpectation2D[] =
+    await getForeignExpectationsFromKvList();
 
   // Pass data to the page via props
   return { props: { foreignExpectations } };

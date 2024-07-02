@@ -1,9 +1,12 @@
 import { NextApiRequest, NextApiResponse } from "next";
 
 import { generateEmbeddings } from "@/application/ai";
-import { addPairToKvList, getPairFromKvList } from "@/application/kv";
+import {
+  addForeignExpectationToKvList,
+  getForeignExpectationsFromKvList,
+} from "@/application/kv";
 
-export default async function addPair(
+export default async function addForeignExpectation(
   request: NextApiRequest,
   response: NextApiResponse
 ) {
@@ -13,7 +16,7 @@ export default async function addPair(
     embeddings: [expectationEmbedding, experienceEmbedding],
   } = await generateEmbeddings([expectation, experience]);
 
-  await addPairToKvList({
+  await addForeignExpectationToKvList({
     key: Math.random(),
     expectation,
     expectationEmbedding,
@@ -21,8 +24,8 @@ export default async function addPair(
     experienceEmbedding,
   });
 
-  const pairs = await getPairFromKvList();
+  const foreignExpectations = await getForeignExpectationsFromKvList();
 
   await response.revalidate("/");
-  response.status(200).json(pairs);
+  response.status(200).json(foreignExpectations);
 }
