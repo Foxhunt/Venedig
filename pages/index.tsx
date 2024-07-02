@@ -1,85 +1,147 @@
 import { ForeignExpectation2D } from "@/types";
 
-import { GetServerSideProps, InferGetServerSidePropsType } from "next";
-import { useState } from "react";
+import { GetStaticProps, InferGetStaticPropsType } from "next";
+import { useMemo, useState } from "react";
 
-import LineAndDots from "@/components/LineAndDots";
 import Dot from "@/components/Dot";
 import Form from "@/components/Form";
+import LineAndDots from "@/components/LineAndDots";
 
 import "@pixi/events";
-import { Stage } from "@pixi/react";
+import { Container, Stage } from "@pixi/react";
 
 import { getPairFromKvList } from "@/application/kv";
+import { intersect } from "@/application/math";
 
-export const getServerSideProps = (async () => {
+export const getStaticProps = (async () => {
   // Fetch data from external API
   const foreignExpectations: ForeignExpectation2D[] = await getPairFromKvList();
 
   // Pass data to the page via props
   return { props: { foreignExpectations } };
-}) satisfies GetServerSideProps<{
+}) satisfies GetStaticProps<{
   foreignExpectations: ForeignExpectation2D[];
 }>;
 
+const stageWidth = 1920;
+const stageHeight = 1080;
+
 export default function Home({
   foreignExpectations: initialForeignExpectations,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const [clicks, setClicks] = useState<[number, number][]>([]);
-
+}: InferGetStaticPropsType<typeof getStaticProps>) {
   const [foreignExpectations, setForeignExpectations] = useState(
     initialForeignExpectations
   );
 
+  const intersections = useMemo(
+    () =>
+      foreignExpectations.flatMap((currentElement, index, array) => {
+        const intersections: { x: number; y: number; text: string }[] = [];
+        const remainingElements = array.slice(index + 1);
+
+        remainingElements.forEach((otherElement) => {
+          const intersection = intersect(
+            currentElement.expectationEmbedding2D[0] * stageWidth,
+            currentElement.expectationEmbedding2D[1] * stageHeight,
+            currentElement.experienceEmbedding2D[0] * stageWidth,
+            currentElement.experienceEmbedding2D[1] * stageHeight,
+            otherElement.expectationEmbedding2D[0] * stageWidth,
+            otherElement.expectationEmbedding2D[1] * stageHeight,
+            otherElement.experienceEmbedding2D[0] * stageWidth,
+            otherElement.experienceEmbedding2D[1] * stageHeight
+          );
+          if (intersection) {
+            intersections.push({
+              ...intersection,
+              text: `${currentElement.expectation} -> ${currentElement.experience} X ${otherElement.expectation} -> ${otherElement.experience}`,
+            });
+          }
+        });
+        return intersections;
+      }),
+    [foreignExpectations]
+  );
+
   return (
-    <main
-    // className={`flex min-h-screen justify-center items-center`}
-    >
+    <main>
+      <Form setForeignExpectations={setForeignExpectations} />
       <Stage
         options={{
           antialias: true,
           resolution: 2,
           eventMode: "static",
-          preserveDrawingBuffer: false,
           clearBeforeRender: true,
+          preserveDrawingBuffer: false,
+          backgroundColor: 0xc0c0c0,
         }}
-        // raf={false}
-        // renderOnComponentChange
-        className="bg-black"
-        width={1920}
-        height={1080}
-        onPointerMove={({ clientX, clientY }) => {
-          setClicks([[clientX, clientY]]);
-        }}
+        raf={false}
+        renderOnComponentChange
+        // className="bg-black"
+        width={stageWidth}
+        height={stageHeight}
       >
-        {foreignExpectations.map(
-          ({
-            expectationEmbedding2D,
-            experienceEmbedding2D,
-            expectation,
-            experience,
-            key,
-          }) => (
-            <LineAndDots
-              key={key}
-              expectation={expectation}
-              experience={experience}
-              start={[
-                expectationEmbedding2D[0] * 1920,
-                expectationEmbedding2D[1] * 1080,
-              ]}
-              end={[
-                experienceEmbedding2D[0] * 1920,
-                experienceEmbedding2D[1] * 1080,
-              ]}
+        <Container
+        // anchor={[0.5, 0.5]}
+        // position={[stageWidth / 2, stageHeight / 2]}
+        >
+          {foreignExpectations.map(
+            ({
+              expectationEmbedding2D,
+              experienceEmbedding2D,
+              expectation,
+              experience,
+              key,
+            }) => (
+              <LineAndDots
+                key={key}
+                expectation={expectation}
+                experience={experience}
+                start={[
+                  expectationEmbedding2D[0] * stageWidth,
+                  expectationEmbedding2D[1] * stageHeight,
+                ]}
+                end={[
+                  experienceEmbedding2D[0] * stageWidth,
+                  experienceEmbedding2D[1] * stageHeight,
+                ]}
+              />
+            )
+          )}
+          {intersections.map(({ x, y, text }, index) => (
+            <Dot
+              key={index}
+              position={[x, y]}
+              text={text}
+              color={0x00ccf0}
+              size={3}
             />
-          )
-        )}
-        {/* {clicks.map((click, index) => (
-          <Dot key={index} position={click} />
-        ))} */}
+          ))}
+
+          <Dot
+            position={[0.5 * stageWidth, 0.5 * stageHeight]}
+            color={0x000000}
+            size={10}
+          />
+        </Container>
       </Stage>
-      <Form setForeignExpectations={setForeignExpectations} />
+      {/* {foreignExpectations.map(
+        (
+          {
+            expectation,
+            expectationEmbedding2D,
+            experience,
+            experienceEmbedding2D,
+            key,
+          },
+          index
+        ) => (
+          <div key={key}>
+            {index} {expectation}(
+            {expectationEmbedding2D.map(Math.trunc).join(",")}) {"->"}{" "}
+            {experience}({experienceEmbedding2D.map(Math.trunc).join(",")})
+          </div>
+        )
+      )} */}
     </main>
   );
 }

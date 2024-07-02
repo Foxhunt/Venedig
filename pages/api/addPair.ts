@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 
 import { generateEmbeddings } from "@/application/ai";
-import { addPairToKvList } from "@/application/kv";
+import { addPairToKvList, getPairFromKvList } from "@/application/kv";
 
 export default async function addPair(
   request: NextApiRequest,
@@ -13,7 +13,7 @@ export default async function addPair(
     embeddings: [expectationEmbedding, experienceEmbedding],
   } = await generateEmbeddings([expectation, experience]);
 
-  const pairs = await addPairToKvList({
+  await addPairToKvList({
     key: Math.random(),
     expectation,
     expectationEmbedding,
@@ -21,5 +21,8 @@ export default async function addPair(
     experienceEmbedding,
   });
 
+  const pairs = await getPairFromKvList();
+
+  await response.revalidate("/");
   response.status(200).json(pairs);
 }
