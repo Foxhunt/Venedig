@@ -1,5 +1,5 @@
 import { ForeignExpectation, ForeignExpectation2D } from "@/types";
-import { UMAP, TSNE, TriMap } from "@saehrimnir/druidjs";
+import { UMAP, cosine, TSNE, TriMap } from "@saehrimnir/druidjs";
 import { kv } from "@vercel/kv";
 
 export async function getPairFromKvList(): Promise<ForeignExpectation2D[]> {
@@ -17,14 +17,28 @@ export async function getPairFromKvList(): Promise<ForeignExpectation2D[]> {
   if (embeddings.length > 0) {
     const reduction = new UMAP(embeddings, {
       n_neighbors: 1,
+      // local_connectivity: 6,
+      // metric: cosine,
+      // seed: 0,
+      // min_dist: 90,
+      // _spread: 55,
     });
+
+    const projection: [number, number][] = reduction.transform();
+
+    const min = Math.min(...projection.flatMap((arr) => Array.from(arr)));
+    const max = Math.max(...projection.flatMap((arr) => Array.from(arr)));
+    const normalizedProjection = projection.map(([x, y]) => [
+      (x - min) / (max - min),
+      (y - min) / (max - min),
+    ]);
 
     return pairs.map(({ expectation, experience, key }, index) => ({
       expectation,
       experience,
       key,
-      expectationEmbedding2D: Array.from(reduction.projection[index * 2]),
-      experienceEmbedding2D: Array.from(reduction.projection[index * 2 + 1]),
+      expectationEmbedding2D: Array.from(normalizedProjection[index * 2]),
+      experienceEmbedding2D: Array.from(normalizedProjection[index * 2 + 1]),
     }));
   } else {
     return [];
