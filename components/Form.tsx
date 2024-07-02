@@ -17,12 +17,14 @@ export default function Form({ setForeignExpectations }: FormProps) {
 
     // Handle response if necessary
     const data = await response.json();
-    console.log(data);
     setForeignExpectations(data);
   }
 
   return (
-    <form onSubmit={onSubmit}>
+    <form
+      className="absolute flex flex-col bg-white top-[-50px] hover:top-0"
+      onSubmit={onSubmit}
+    >
       <label>
         expectation
         <input type="text" name="expectation" />
