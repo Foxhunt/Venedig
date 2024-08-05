@@ -1,39 +1,65 @@
 import { ForeignExpectation2D } from "@/types";
-import { Dispatch, FormEvent, SetStateAction } from "react";
+
+import { Dispatch, FormEvent, SetStateAction, useCallback } from "react";
+
+import {
+  Button,
+  Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  useDisclosure,
+} from "@nextui-org/react";
 
 type FormProps = {
   setForeignExpectations: Dispatch<SetStateAction<ForeignExpectation2D[]>>;
 };
 
 export default function Form({ setForeignExpectations }: FormProps) {
-  async function onSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
 
-    const formData = new FormData(event.currentTarget);
-    const response = await fetch("/api/addForeignExpectations", {
-      method: "POST",
-      body: JSON.stringify(Object.fromEntries(formData.entries())),
-    });
+  const onSubmit = useCallback(
+    async (event: FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      onClose();
 
-    // Handle response if necessary
-    const data = await response.json();
-    setForeignExpectations(data);
-  }
+      const formData = new FormData(event.currentTarget);
+      const response = await fetch("/api/addForeignExpectations", {
+        method: "POST",
+        body: JSON.stringify(Object.fromEntries(formData.entries())),
+      });
+
+      // Handle response if necessary
+      const data = await response.json();
+      setForeignExpectations(data);
+    },
+    [onClose, setForeignExpectations]
+  );
 
   return (
-    <form
-      className="absolute flex flex-col bg-white top-[-50px] hover:top-0"
-      onSubmit={onSubmit}
-    >
-      <label>
-        expectation
-        <input type="text" name="expectation" />
-      </label>
-      <label>
-        experience
-        <input type="text" name="experience" />
-      </label>
-      <button type="submit">send</button>
-    </form>
+    <>
+      <Button
+        className="absolute flex flex-col bg-white top-0"
+        onPress={onOpen}
+      >
+        Add foreign Expectation
+      </Button>
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange} backdrop="blur">
+        <ModalContent>
+          <form onSubmit={onSubmit}>
+            <ModalHeader>Add foreign Expectation</ModalHeader>
+            <ModalBody>
+              <Input type="text" name="expectation" label="expectation" />
+              <Input type="text" name="experience" label="experience" />
+            </ModalBody>
+            <ModalFooter>
+              <Button type="submit">send</Button>
+            </ModalFooter>
+          </form>
+        </ModalContent>
+      </Modal>
+    </>
   );
 }
