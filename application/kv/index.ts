@@ -2,6 +2,11 @@ import { ForeignExpectation, ForeignExpectation2D } from "@/types";
 import { UMAP, cosine, TSNE, TriMap } from "@saehrimnir/druidjs";
 import { kv } from "@vercel/kv";
 
+/**
+ * Funktion um alle ForeignExpectations aus dem KV-Store zu holen.
+ *
+ * @returns {Promise<ForeignExpectation2D[]>}
+ */
 export async function getForeignExpectationsFromKvList(): Promise<
   ForeignExpectation2D[]
 > {
@@ -52,6 +57,13 @@ export async function getForeignExpectationsFromKvList(): Promise<
     return [];
   }
 }
+
+/**
+ * Funktion um eine ForeignExpectation hinzuzufügen.
+ *
+ * @param {ForeignExpectation} foreignExpectation
+ * @returns {Promise<void>}
+ */
 
 export async function addForeignExpectationToKvList(
   foreignExpectation: ForeignExpectation

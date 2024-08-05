@@ -3,15 +3,17 @@ import { ForeignExpectation2D } from "@/types";
 import { GetStaticProps, InferGetStaticPropsType } from "next";
 import { useMemo, useState } from "react";
 
-import Dot from "@/components/Dot";
 import Form from "@/components/Form";
-import LineAndDots from "@/components/LineAndDots";
+
+import Dot from "@/components/2D/Dot";
+import LineAndDots from "@/components/2D/LineAndDots";
 
 import "@pixi/events";
 import { Container, Stage } from "@pixi/react";
 
 import { getForeignExpectationsFromKvList } from "@/application/kv";
 import { intersect } from "@/application/math";
+import Line from "@/components/2D/Line";
 
 export const getStaticProps = (async () => {
   // Fetch data from external API
@@ -122,6 +124,26 @@ export default function Home({
             position={[0.5 * stageWidth, 0.5 * stageHeight]}
             color={0x000000}
             size={10}
+          />
+
+          <LineAndDots
+            expectation={"wasd"}
+            experience={"wasd"}
+            start={[100, 100]}
+            end={[100 + 100, 100]}
+          />
+          <LineAndDots
+            expectation={"wasd"}
+            experience={"wasd"}
+            start={[100, 100]}
+            end={[100, 100 + 100]}
+          />
+
+          <LineAndDots
+            expectation={"wasd"}
+            experience={"wasd"}
+            start={[100, 100]}
+            end={[100 + 100, 100 + 100]}
           />
         </Container>
       </Stage>
