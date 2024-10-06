@@ -1,0 +1,26 @@
+[
+  {
+    "text": "sunny day at the beach",
+    "embedding": [-0.000008639477565681426, 0.00003156612460195278]
+  },
+  {
+    "text": "cool day at the beach",
+    "embedding": [-0.00002984461402815134, 0.00009712748048091622]
+  },
+  {
+    "text": "icecream on the beach",
+    "embedding": [0.00008481795986318707, -0.00005894192915389951]
+  },
+  {
+    "text": "running on the beach",
+    "embedding": [-0.0000711546412552413, 0.00015096526547721335]
+  },
+  {
+    "text": "playing ball on the beach",
+    "embedding": [-0.00004401851681025671, -0.00015390442732123835]
+  },
+  {
+    "text": "sunbathing on the beach",
+    "embedding": [-0.00007520942758456102, 0.00008700988612584706]
+  }
+]
