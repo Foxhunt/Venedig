@@ -10,10 +10,10 @@ import LineAndDots from "@/components/2D/LineAndDots";
 
 import "@pixi/events";
 import { Container, Stage } from "@pixi/react";
+import { initDevtools } from "@pixi/devtools";
 
 import { getForeignExpectationsFromKvList } from "@/application/kv";
 import { intersect } from "@/application/math";
-import Line from "@/components/2D/Line";
 
 export const getStaticProps = (async () => {
   // Fetch data from external API
@@ -26,12 +26,13 @@ export const getStaticProps = (async () => {
   foreignExpectations: ForeignExpectation2D[];
 }>;
 
-const stageWidth = 1920;
-const stageHeight = 1080;
-
 export default function Home({
   foreignExpectations: initialForeignExpectations,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
+  const stageWidth = typeof window !== "undefined" ? window.innerWidth : 10;
+  const stageHeight =
+    typeof window !== "undefined" ? window.innerHeight - 45 : 10;
+
   const [foreignExpectations, setForeignExpectations] = useState(
     initialForeignExpectations
   );
@@ -66,7 +67,7 @@ export default function Home({
   );
 
   return (
-    <main>
+    <>
       <Form setForeignExpectations={setForeignExpectations} />
       <Stage
         options={{
@@ -75,7 +76,10 @@ export default function Home({
           eventMode: "static",
           clearBeforeRender: true,
           preserveDrawingBuffer: false,
-          backgroundColor: 0xc0c0c0,
+          backgroundColor: 0xfcfcfc,
+        }}
+        onMount={(app) => {
+          initDevtools({ app });
         }}
         raf={false}
         renderOnComponentChange
@@ -84,8 +88,9 @@ export default function Home({
         height={stageHeight}
       >
         <Container
-        // anchor={[0.5, 0.5]}
-        // position={[stageWidth / 2, stageHeight / 2]}
+          // anchor={[0.5, 0.5]}
+          // position={[stageWidth / 2, stageHeight / 2]}
+          sortableChildren
         >
           {foreignExpectations.map(
             ({
@@ -126,25 +131,63 @@ export default function Home({
             size={10}
           />
 
-          <LineAndDots
-            expectation={"wasd"}
-            experience={"wasd"}
-            start={[100, 100]}
-            end={[100 + 100, 100]}
-          />
-          <LineAndDots
-            expectation={"wasd"}
-            experience={"wasd"}
-            start={[100, 100]}
-            end={[100, 100 + 100]}
-          />
+          {/* <Container>
+            <LineAndDots
+              expectation={"wasd"}
+              experience={"wasd"}
+              start={[200, 200]}
+              end={[200 + 100, 200]}
+            />
 
-          <LineAndDots
-            expectation={"wasd"}
-            experience={"wasd"}
-            start={[100, 100]}
-            end={[100 + 100, 100 + 100]}
-          />
+            <LineAndDots
+              expectation={"wasd"}
+              experience={"wasd"}
+              start={[200, 200]}
+              end={[200 - 100, 200]}
+            />
+
+            <LineAndDots
+              expectation={"wasd"}
+              experience={"wasd"}
+              start={[200, 200]}
+              end={[200, 200 + 100]}
+            />
+
+            <LineAndDots
+              expectation={"wasd"}
+              experience={"wasd"}
+              start={[200, 200]}
+              end={[200, 200 - 100]}
+            />
+
+            <LineAndDots
+              expectation={"wasd"}
+              experience={"wasd"}
+              start={[200, 200]}
+              end={[200 + 100, 200 + 100]}
+            />
+
+            <LineAndDots
+              expectation={"wasd"}
+              experience={"wasd"}
+              start={[200, 200]}
+              end={[200 - 100, 200 - 100]}
+            />
+
+            <LineAndDots
+              expectation={"wasd"}
+              experience={"wasd"}
+              start={[200, 200]}
+              end={[200 + 100, 200 - 100]}
+            />
+
+            <LineAndDots
+              expectation={"wasd"}
+              experience={"wasd"}
+              start={[200, 200]}
+              end={[200 - 100, 200 + 100]}
+            />
+          </Container> */}
         </Container>
       </Stage>
       {/* {foreignExpectations.map(
@@ -165,6 +208,6 @@ export default function Home({
           </div>
         )
       )} */}
-    </main>
+    </>
   );
 }

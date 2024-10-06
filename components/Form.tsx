@@ -10,6 +10,7 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader,
+  Textarea,
   useDisclosure,
 } from "@nextui-org/react";
 
@@ -40,10 +41,7 @@ export default function Form({ setForeignExpectations }: FormProps) {
 
   return (
     <>
-      <Button
-        className="absolute flex flex-col bg-white top-0"
-        onPress={onOpen}
-      >
+      <Button className="absolute bottom-1 left-1 right-1" onPress={onOpen}>
         Add foreign Expectation
       </Button>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} backdrop="blur">
@@ -51,8 +49,22 @@ export default function Form({ setForeignExpectations }: FormProps) {
           <form onSubmit={onSubmit}>
             <ModalHeader>Add foreign Expectation</ModalHeader>
             <ModalBody>
-              <Input type="text" name="expectation" label="expectation" />
-              <Input type="text" name="experience" label="experience" />
+              <p>Teile deine Erwartung und deine Erfahrung an die Fremde.</p>
+              <Textarea
+                autoFocus
+                type="text"
+                name="expectation"
+                label="Erwartung"
+                labelPlacement="outside"
+                // description="Deine Erwartung an das Fremde."
+              />
+              <Textarea
+                type="text"
+                name="experience"
+                label="Erfahrung"
+                labelPlacement="outside"
+                // description="Deine Erfahrung mit dem Fremden."
+              />
             </ModalBody>
             <ModalFooter>
               <Button type="submit">send</Button>

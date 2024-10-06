@@ -1,8 +1,6 @@
+import { useState } from "react";
 import Dot from "./Dot";
 import Line from "./Line";
-
-const distanceFromDotCenterToLineStart = 12;
-const distanceFromDotCenterToLineEnd = 20;
 
 type LineProps = {
   start: [number, number];
@@ -17,6 +15,11 @@ export default function LineAndDots({
   expectation,
   experience,
 }: LineProps) {
+  const [poninterOver, setPointerOver] = useState<boolean>(false);
+
+  const distanceFromDotCenterToLineStart = poninterOver ? 14 : 18;
+  const distanceFromDotCenterToLineEnd = poninterOver ? 14 : 18;
+
   const LineAngle = Math.atan2(end[1] - start[1], end[0] - start[0]);
 
   const startX =
@@ -31,9 +34,29 @@ export default function LineAndDots({
 
   return (
     <>
-      <Line start={lineStart} end={lineEnd} color={0x3333ff} />
-      <Dot text={expectation} position={start} color={0x33ff33} size={8} />
-      <Dot text={experience} position={end} color={0xff3333} size={8} />
+      <Line
+        start={lineStart}
+        end={lineEnd}
+        color={0x3333ff}
+        poninterOver={poninterOver}
+        setPointerOver={setPointerOver}
+      />
+      <Dot
+        text={expectation}
+        position={start}
+        color={0x33ff33}
+        size={8}
+        poninterOver={poninterOver}
+        setPointerOver={setPointerOver}
+      />
+      <Dot
+        text={experience}
+        position={end}
+        color={0xff3333}
+        size={8}
+        poninterOver={poninterOver}
+        setPointerOver={setPointerOver}
+      />
     </>
   );
 }

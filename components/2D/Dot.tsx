@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useState } from "react";
 
 import { Container, Graphics, Text } from "@pixi/react";
 
@@ -11,6 +11,8 @@ type DotProps = {
   size?: number;
   text?: string;
   color?: ColorSource;
+  poninterOver?: boolean;
+  setPointerOver?: Dispatch<SetStateAction<boolean>>;
 };
 
 export default function Dot({
@@ -18,14 +20,14 @@ export default function Dot({
   size = 10,
   text,
   color = 0xffffff,
+  poninterOver,
+  setPointerOver,
 }: DotProps) {
-  const [poninterOver, setPointerOver] = useState<boolean>(false);
-
   const draw = useCallback(
     (g: PixiGraphics) => {
       g.clear();
-      g.beginFill(color, poninterOver ? 1 : 0.99);
-      g.drawCircle(0, 0, poninterOver ? 20 : size);
+      g.beginFill(color);
+      g.drawCircle(0, 0, poninterOver ? 10 : size);
     },
     [color, poninterOver, size]
   );
@@ -34,8 +36,9 @@ export default function Dot({
     <Container position={position} zIndex={poninterOver ? 999 : 0}>
       <Graphics
         draw={draw}
-        onpointerenter={() => setPointerOver(true)}
-        onpointerleave={() => setPointerOver(false)}
+        alpha={poninterOver ? 1 : 0.5}
+        onpointerenter={() => setPointerOver?.(true)}
+        onpointerleave={() => setPointerOver?.(false)}
       />
       {poninterOver && (
         <Text
@@ -56,7 +59,7 @@ export default function Dot({
               // fillGradientStops: [0, 0.1, 1, 0],
               // fillGradientType: TEXT_GRADIENT.LINEAR_HORIZONTAL,
               stroke: "#000000",
-              strokeThickness: 4,
+              strokeThickness: 2,
               // letterSpacing: 20,
               // dropShadow: true,
               // dropShadowColor: "#ccced2",
