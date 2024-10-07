@@ -63,7 +63,7 @@ export default function Home({
         });
         return intersections;
       }),
-    [foreignExpectations]
+    [foreignExpectations, stageHeight, stageWidth]
   );
 
   return (
@@ -120,7 +120,7 @@ export default function Home({
               key={index}
               position={[x, y]}
               text={text}
-              color={0x00ccf0}
+              color={0xff8800}
               size={3}
             />
           ))}

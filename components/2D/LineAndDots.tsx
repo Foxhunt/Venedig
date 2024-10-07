@@ -46,16 +46,16 @@ export default function LineAndDots({
         position={start}
         color={0x33ff33}
         size={8}
-        poninterOver={poninterOver}
-        setPointerOver={setPointerOver}
+        extPoninterOver={poninterOver}
+        extSetPointerOver={setPointerOver}
       />
       <Dot
         text={experience}
         position={end}
         color={0xff3333}
         size={8}
-        poninterOver={poninterOver}
-        setPointerOver={setPointerOver}
+        extPoninterOver={poninterOver}
+        extSetPointerOver={setPointerOver}
       />
     </>
   );

@@ -4,8 +4,8 @@ import { Graphics as PixiGraphics } from "@pixi/graphics";
 import { Graphics, useApp } from "@pixi/react";
 import { ColorSource, LINE_CAP, LINE_JOIN } from "pixi.js";
 
-const arrowLength = 15;
-const arrowAngle = 30;
+const arrowLength = 8;
+const arrowAngle = 20;
 
 type LineProps = {
   start: [number, number];
@@ -59,5 +59,5 @@ export default function Line({
     [color, end, poninterOver, start]
   );
 
-  return <Graphics alpha={poninterOver ? 1 : 0.8} draw={draw} />;
+  return <Graphics alpha={poninterOver ? 1 : 0.9} draw={draw} />;
 }

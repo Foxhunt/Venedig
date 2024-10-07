@@ -1,5 +1,11 @@
 import { ForeignExpectation, ForeignExpectation2D } from "@/types";
-import { UMAP, cosine, TSNE, TriMap } from "@saehrimnir/druidjs";
+import {
+  UMAP,
+  cosine,
+  euclidean_squared,
+  TSNE,
+  TriMap,
+} from "@saehrimnir/druidjs";
 import { kv } from "@vercel/kv";
 
 /**
@@ -27,12 +33,12 @@ export async function getForeignExpectationsFromKvList(): Promise<
 
   if (embeddings.length > 0) {
     const reduction = new UMAP(embeddings, {
-      n_neighbors: 1,
-      // local_connectivity: 6,
-      // metric: cosine,
+      n_neighbors: 10,
+      min_dist: 1,
+      // local_connectivity: 1,
       // seed: 0,
-      // min_dist: 90,
-      // _spread: 55,
+      // _spread: 0.4,
+      // metric: cosine,
     });
 
     const projection: [number, number][] = reduction.transform();

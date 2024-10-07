@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useCallback, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useRef, useState } from "react";
 
 import { Container, Graphics, Text } from "@pixi/react";
 
@@ -11,8 +11,8 @@ type DotProps = {
   size?: number;
   text?: string;
   color?: ColorSource;
-  poninterOver?: boolean;
-  setPointerOver?: Dispatch<SetStateAction<boolean>>;
+  extPoninterOver?: boolean;
+  extSetPointerOver?: Dispatch<SetStateAction<boolean>>;
 };
 
 export default function Dot({
@@ -20,31 +20,45 @@ export default function Dot({
   size = 10,
   text,
   color = 0xffffff,
-  poninterOver,
-  setPointerOver,
+  extPoninterOver,
+  extSetPointerOver,
 }: DotProps) {
   const draw = useCallback(
     (g: PixiGraphics) => {
       g.clear();
       g.beginFill(color);
-      g.drawCircle(0, 0, poninterOver ? 10 : size);
+      g.drawCircle(0, 0, extPoninterOver ? 10 : size);
     },
-    [color, poninterOver, size]
+    [color, extPoninterOver, size]
+  );
+
+  const [poninterOver, setPointerOver] = useState<boolean>(false);
+
+  const handlePointer = useCallback(
+    (value: boolean) => {
+      if (extSetPointerOver) {
+        extSetPointerOver(value);
+      } else {
+        setPointerOver(value);
+      }
+    },
+    [extSetPointerOver]
   );
 
   return (
-    <Container position={position} zIndex={poninterOver ? 999 : 0}>
+    <Container
+      position={position}
+      zIndex={extPoninterOver || poninterOver ? 999 : 0}
+    >
       <Graphics
         draw={draw}
-        alpha={poninterOver ? 1 : 0.5}
-        onpointerenter={() => setPointerOver?.(true)}
-        onpointerleave={() => setPointerOver?.(false)}
+        alpha={extPoninterOver || poninterOver ? 1 : 0.9}
+        onpointerenter={() => handlePointer(true)}
+        onpointerleave={() => handlePointer(false)}
       />
-      {poninterOver && (
+      {(extPoninterOver || poninterOver) && (
         <Text
-          text={`${text || ""} (${Math.trunc(position[0])},${Math.trunc(
-            position[1]
-          )})`}
+          text={`${text || ""}`}
           position={[25, -24]}
           anchor={[0, 0]}
           angle={0}
