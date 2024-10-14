@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, useCallback } from "react";
 
 import { Graphics as PixiGraphics } from "@pixi/graphics";
-import { Graphics, useApp } from "@pixi/react";
+import { Graphics } from "@pixi/react";
 import { ColorSource, LINE_CAP, LINE_JOIN } from "pixi.js";
 
 const arrowLength = 8;
