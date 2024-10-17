@@ -13,3 +13,10 @@ export type ForeignExpectation2D = Omit<
   expectationEmbedding2D: number[];
   experienceEmbedding2D: number[];
 };
+
+export type Intersection = {
+  x: number;
+  y: number;
+  text: string;
+  foreignExpectationKeys: number[];
+};

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Dot from "./Dot";
 import Line from "./Line";
 
@@ -7,6 +7,7 @@ type LineProps = {
   end: [number, number];
   expectation: string;
   experience: string;
+  extPointerOver?: boolean;
 };
 
 export default function LineAndDots({
@@ -14,11 +15,14 @@ export default function LineAndDots({
   end,
   expectation,
   experience,
+  extPointerOver,
 }: LineProps) {
   const [poninterOver, setPointerOver] = useState<boolean>(false);
 
-  const distanceFromDotCenterToLineStart = poninterOver ? 14 : 18;
-  const distanceFromDotCenterToLineEnd = poninterOver ? 14 : 18;
+  const distanceFromDotCenterToLineStart =
+    poninterOver || extPointerOver ? 14 : 18;
+  const distanceFromDotCenterToLineEnd =
+    poninterOver || extPointerOver ? 14 : 18;
 
   const LineAngle = Math.atan2(end[1] - start[1], end[0] - start[0]);
 
@@ -32,29 +36,49 @@ export default function LineAndDots({
   const endY = end[1] - distanceFromDotCenterToLineEnd * Math.sin(LineAngle);
   const lineEnd: [number, number] = [endX, endY];
 
+  const expectationColor = useMemo(
+    () => ({
+      h: 360 * Math.random(),
+      s: 50 + 50 * Math.random(),
+      l: 30 + 30 * Math.random(),
+    }),
+    []
+  );
+
+  const experienceColor = useMemo(
+    () => ({
+      h: 360 * Math.random(),
+      s: 50 + 50 * Math.random(),
+      l: 30 + 30 * Math.random(),
+    }),
+    []
+  );
+
   return (
     <>
-      <Line
-        start={lineStart}
-        end={lineEnd}
-        color={0x3333ff}
-        poninterOver={poninterOver}
-        setPointerOver={setPointerOver}
-      />
+      {(poninterOver || extPointerOver) && (
+        <Line
+          start={lineStart}
+          end={lineEnd}
+          color={0xa6b7fe}
+          poninterOver={poninterOver || extPointerOver}
+          setPointerOver={setPointerOver}
+        />
+      )}
       <Dot
         text={expectation}
         position={start}
-        color={0x33ff33}
+        color={expectationColor}
         size={8}
-        extPoninterOver={poninterOver}
+        extPoninterOver={poninterOver || extPointerOver}
         extSetPointerOver={setPointerOver}
       />
       <Dot
         text={experience}
         position={end}
-        color={0xff3333}
+        color={experienceColor}
         size={8}
-        extPoninterOver={poninterOver}
+        extPoninterOver={poninterOver || extPointerOver}
         extSetPointerOver={setPointerOver}
       />
     </>

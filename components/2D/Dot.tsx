@@ -9,13 +9,14 @@ import {
 
 import { Container, Graphics, Text, useApp, Sprite } from "@pixi/react";
 
-import { ColorSource, Texture } from "pixi.js";
+import { Circle, ColorSource, Rectangle, Texture } from "pixi.js";
 import { TextStyle, TextMetrics } from "@pixi/text";
-import { Graphics as PixiGraphics } from "@pixi/graphics";
+import { LINE_CAP, LINE_JOIN, Graphics as PixiGraphics } from "@pixi/graphics";
 
 type DotProps = {
   position: [number, number];
   size?: number;
+  form?: "cross" | "circle";
   text?: string;
   color?: ColorSource;
   extPoninterOver?: boolean;
@@ -25,20 +26,12 @@ type DotProps = {
 export default function Dot({
   position,
   size = 10,
+  form = "circle",
   text = "",
   color = 0xffffff,
   extPoninterOver,
   extSetPointerOver,
 }: DotProps) {
-  const draw = useCallback(
-    (g: PixiGraphics) => {
-      g.clear();
-      g.beginFill(color);
-      g.drawCircle(0, 0, extPoninterOver ? 10 : size);
-    },
-    [color, extPoninterOver, size]
-  );
-
   const [poninterOver, setPointerOver] = useState<boolean>(false);
 
   const handlePointer = useCallback(
@@ -50,6 +43,35 @@ export default function Dot({
       }
     },
     [extSetPointerOver]
+  );
+
+  const draw = useCallback(
+    (g: PixiGraphics) => {
+      g.clear();
+      switch (form) {
+        case "circle":
+          g.beginFill(color);
+          g.drawCircle(0, 0, extPoninterOver || poninterOver ? 10 : size);
+          break;
+        case "cross":
+          g.lineStyle({
+            width: extPoninterOver || poninterOver ? 3 : 2,
+            color,
+            cap: LINE_CAP.ROUND,
+            join: LINE_JOIN.ROUND,
+          });
+
+          g.moveTo(-3, -3);
+          g.lineTo(+3, +3);
+
+          g.moveTo(+3, -3);
+          g.lineTo(-3, +3);
+          break;
+        default:
+          break;
+      }
+    },
+    [color, extPoninterOver, form, poninterOver, size]
   );
 
   const style = useMemo(
@@ -94,18 +116,19 @@ export default function Dot({
     >
       <Graphics
         draw={draw}
-        alpha={extPoninterOver || poninterOver ? 1 : 0.9}
+        // alpha={extPoninterOver || poninterOver ? 1 : 0.9}
         onpointerenter={() => handlePointer(true)}
         onpointerleave={() => handlePointer(false)}
+        hitArea={new Circle(0, 0, 10)}
       />
       {(extPoninterOver || poninterOver) && (
         <>
           <Sprite
             texture={Texture.WHITE}
             tint={0xd0d0d0}
-            width={metrics.width}
+            width={metrics.width + 10}
             height={metrics.height}
-            position={[wouldClipX ? -15 : 15, wouldClipY ? 16 : -22]}
+            position={[wouldClipX ? -10 : 10, wouldClipY ? 16 : -22]}
             anchor={[wouldClipX ? 1 : 0, wouldClipY ? 1 : 0]}
             alpha={0.9}
           />

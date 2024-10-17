@@ -5,14 +5,14 @@ import { Graphics } from "@pixi/react";
 import { ColorSource, LINE_CAP, LINE_JOIN } from "pixi.js";
 
 const arrowLength = 8;
-const arrowAngle = 20;
+const arrowAngle = 30;
 
 type LineProps = {
   start: [number, number];
   end: [number, number];
   color?: ColorSource;
   poninterOver?: boolean;
-  setPointerOver?: Dispatch<SetStateAction<boolean>>;
+  setPointerOver: Dispatch<SetStateAction<boolean>>;
 };
 
 export default function Line({
@@ -20,6 +20,7 @@ export default function Line({
   end,
   color = 0xffffff,
   poninterOver,
+  setPointerOver,
 }: LineProps) {
   const draw = useCallback(
     (g: PixiGraphics) => {
@@ -37,17 +38,17 @@ export default function Line({
 
       const lineAngle = Math.atan2(end[1] - start[1], end[0] - start[0]);
 
-      const x1 =
+      let x1 =
         end[0] -
         arrowLength * Math.cos(lineAngle + (Math.PI / 180) * arrowAngle);
-      const y1 =
+      let y1 =
         end[1] -
         arrowLength * Math.sin(lineAngle + (Math.PI / 180) * arrowAngle);
 
-      const x2 =
+      let x2 =
         end[0] -
         arrowLength * Math.cos(lineAngle - (Math.PI / 180) * arrowAngle);
-      const y2 =
+      let y2 =
         end[1] -
         arrowLength * Math.sin(lineAngle - (Math.PI / 180) * arrowAngle);
 
@@ -55,9 +56,26 @@ export default function Line({
       g.lineTo(x1, y1);
       g.moveTo(end[0], end[1]);
       g.lineTo(x2, y2);
+
+      x1 = start[0] - 5 * Math.cos(lineAngle + (Math.PI / 180) * 90);
+      y1 = start[1] - 5 * Math.sin(lineAngle + (Math.PI / 180) * 90);
+
+      x2 = start[0] - 5 * Math.cos(lineAngle - (Math.PI / 180) * 90);
+      y2 = start[1] - 5 * Math.sin(lineAngle - (Math.PI / 180) * 90);
+
+      // Draw start line
+      g.moveTo(x1, y1);
+      g.lineTo(x2, y2);
     },
     [color, end, poninterOver, start]
   );
 
-  return <Graphics alpha={poninterOver ? 1 : 0.9} draw={draw} />;
+  return (
+    <Graphics
+      draw={draw}
+      alpha={poninterOver ? 1 : 0.9}
+      onpointerenter={() => setPointerOver(true)}
+      onpointerleave={() => setPointerOver(false)}
+    />
+  );
 }
