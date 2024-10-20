@@ -10,10 +10,12 @@ import LineAndDots from "@/components/2D/LineAndDots";
 
 import { initDevtools } from "@pixi/devtools";
 import "@pixi/events";
+import "@pixi/math-extras";
 import { Container, Stage } from "@pixi/react";
 
 import { getForeignExpectationsFromKvList } from "@/application/kv";
 import { intersect } from "@/application/math";
+import LabelContext from "@/components/2D/LabelContext";
 
 export const getStaticProps = (async () => {
   // Fetch data from external API
@@ -158,65 +160,69 @@ export default function Home({
         width={stageWidth}
         height={stageHeight}
       >
-        <Container
-          // anchor={[0.5, 0.5]}
-          // position={[stageWidth / 2, stageHeight / 2]}
-          sortableChildren
-        >
-          {foreignExpectations.map(
-            ({
-              expectationEmbedding2D,
-              experienceEmbedding2D,
-              expectation,
-              experience,
-              key,
-            }) => (
-              <LineAndDots
-                key={key}
-                extPointerOver={hoveredIntersection?.foreignExpectationKeys.includes(
-                  key
-                )}
-                expectation={expectation}
-                experience={experience}
-                start={[
-                  expectationEmbedding2D[0] * stageWidth,
-                  expectationEmbedding2D[1] * stageHeight,
-                ]}
-                end={[
-                  experienceEmbedding2D[0] * stageWidth,
-                  experienceEmbedding2D[1] * stageHeight,
-                ]}
+        <LabelContext>
+          <Container
+            // anchor={[0.5, 0.5]}
+            // position={[stageWidth / 2, stageHeight / 2]}
+            sortableChildren
+          >
+            {foreignExpectations.map(
+              ({
+                expectationEmbedding2D,
+                experienceEmbedding2D,
+                expectation,
+                experience,
+                key,
+              }) => (
+                <LineAndDots
+                  key={key}
+                  extPointerOver={hoveredIntersection?.foreignExpectationKeys.includes(
+                    key
+                  )}
+                  expectation={expectation}
+                  experience={experience}
+                  start={[
+                    expectationEmbedding2D[0] * stageWidth,
+                    expectationEmbedding2D[1] * stageHeight,
+                  ]}
+                  end={[
+                    experienceEmbedding2D[0] * stageWidth,
+                    experienceEmbedding2D[1] * stageHeight,
+                  ]}
+                />
+              )
+            )}
+            {intersections.map((intersection) => (
+              <Dot
+                key={intersection.foreignExpectationKeys.sort().join("")}
+                position={[intersection.x, intersection.y]}
+                text={
+                  hoveredIntersection === intersection
+                    ? foreignIntersection
+                    : ""
+                }
+                color={0xff8800}
+                form="cross"
+                extPoninterOver={hoveredIntersection === intersection}
+                extSetPointerOver={(isPointerOver) => {
+                  isPointerOver
+                    ? setHoveredIntersection(intersection)
+                    : setHoveredIntersection(undefined);
+                }}
               />
-            )
-          )}
-          {intersections.map((intersection) => (
+            ))}
+
             <Dot
-              key={intersection.foreignExpectationKeys.sort().join("")}
-              position={[intersection.x, intersection.y]}
-              text={
-                hoveredIntersection === intersection ? foreignIntersection : ""
-              }
-              color={0xff8800}
-              form="cross"
-              extPoninterOver={hoveredIntersection === intersection}
-              extSetPointerOver={(isPointerOver) => {
-                isPointerOver
-                  ? setHoveredIntersection(intersection)
-                  : setHoveredIntersection(undefined);
-              }}
+              position={[0.5 * stageWidth, 0.5 * stageHeight]}
+              size={10}
+              text={text}
             />
-          ))}
 
-          <Dot
-            position={[0.5 * stageWidth, 0.5 * stageHeight]}
-            size={10}
-            text={text}
-          />
-
-          <Dot position={[100, 10]} size={10} text={text} form="cross" />
-          <Dot position={[1200, 670]} size={10} text={text} />
-          <Dot position={[1220, 670]} size={10} text={text} />
-        </Container>
+            <Dot position={[100, 10]} size={10} text={text} form="cross" />
+            <Dot position={[1200, 670]} size={10} text={text} />
+            <Dot position={[1220, 670]} size={10} text={text} />
+          </Container>
+        </LabelContext>
       </Stage>
     </>
   );

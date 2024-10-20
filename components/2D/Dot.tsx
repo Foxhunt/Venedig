@@ -4,6 +4,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -12,8 +13,9 @@ import { Graphics, Text, useApp } from "@pixi/react";
 import { LINE_CAP, LINE_JOIN, Graphics as PixiGraphics } from "@pixi/graphics";
 import { Container } from "@pixi/react-animated";
 import { TextMetrics, TextStyle } from "@pixi/text";
-import { Circle, ColorSource, Rectangle } from "pixi.js";
+import { Circle, ColorSource, Container as PixiContainer } from "pixi.js";
 import { useSpring } from "react-spring";
+import { useLabelContext } from "./LabelContext";
 
 type DotProps = {
   position: [number, number];
@@ -163,29 +165,103 @@ export default function Dot({
     }
   }, [dotApi, extPoninterOver, poninterOver, textApi]);
 
+  const [labels, setLabels] = useLabelContext();
+  const labelRef = useRef<PixiContainer>(null);
+
+  useEffect(() => {
+    setLabels((labels) => [...labels, labelRef]);
+
+    return () => {
+      setLabels((labels) => labels.filter((label) => label !== labelRef));
+    };
+  }, [setLabels]);
+
+  useEffect(() => {
+    if (extPoninterOver || poninterOver) {
+      // if (false) {
+      const ownBounds = labelRef.current?.getBounds();
+
+      const intersectingLabels = labels.filter(
+        (label) =>
+          label.current &&
+          label !== labelRef &&
+          ownBounds?.intersects(label.current.getBounds())
+      );
+
+      const intersection = intersectingLabels.map((label) =>
+        label.current?.getBounds().intersection(ownBounds!)
+      )[0];
+
+      if (intersection) {
+        const shouldMoveUp = ownBounds?.bottom === intersection?.bottom;
+        const shouldMoveDown = ownBounds?.top === intersection?.top;
+        const shouldMoveLeft = ownBounds?.right === intersection?.right;
+        const shouldMoveRight = ownBounds?.left === intersection?.left;
+
+        if (shouldMoveUp) {
+          textApi.start({
+            y: -20 + offsetTop + offsetBottom - intersection.height / 2,
+            reset: true,
+          });
+        }
+
+        if (shouldMoveDown) {
+          textApi.start({
+            y: -20 + offsetTop + offsetBottom + intersection.height / 2,
+            reset: true,
+          });
+        }
+
+        if (shouldMoveLeft) {
+          textApi.start({
+            x: 11 + offsetRight - intersection.width / 2,
+            reset: true,
+          });
+        }
+
+        if (shouldMoveRight) {
+          textApi.start({
+            x: 11 + offsetRight + intersection.width / 2,
+            reset: true,
+          });
+        }
+      }
+    }
+  }, [
+    extPoninterOver,
+    labels,
+    offsetBottom,
+    offsetRight,
+    offsetTop,
+    poninterOver,
+    textApi,
+  ]);
+
   return (
-    <Container {...dotProps} zIndex={extPoninterOver || poninterOver ? 999 : 0}>
+    <Container
+      {...dotProps}
+      zIndex={extPoninterOver || poninterOver ? 1 : 0}
+      sortableChildren
+    >
+      {(extPoninterOver || poninterOver) && (
+        <Container ref={labelRef} {...textProps} zIndex={2}>
+          <Graphics
+            draw={(g) => {
+              g.clear();
+              g.beginFill(0x0a0a0a);
+              g.drawRoundedRect(0, 0, metrics.width + 10, metrics.height, 5);
+            }}
+            alpha={0.9}
+          />
+          <Text text={text} x={5} style={style} />
+        </Container>
+      )}
       <Graphics
         draw={draw}
         onpointerenter={() => handlePointer(true)}
         onpointerleave={() => handlePointer(false)}
         hitArea={new Circle(0, 0, 10)}
       />
-      {(extPoninterOver || poninterOver) && (
-        <Container {...textProps}>
-          <Graphics
-            draw={(g) => {
-              g.clear();
-              g.beginFill(0xd0d0d0);
-              g.drawRoundedRect(0, 0, metrics.width + 10, metrics.height, 5);
-            }}
-            alpha={0.9}
-            hitArea={new Rectangle(0, 0, 0, 0)}
-            eventMode="none"
-          />
-          <Text text={text} x={5} style={style} />
-        </Container>
-      )}
     </Container>
   );
 }

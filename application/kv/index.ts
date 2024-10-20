@@ -16,8 +16,6 @@ import { kv } from "@vercel/kv";
 export async function getForeignExpectationsFromKvList(): Promise<
   ForeignExpectation2D[]
 > {
-  // await kv.del(foreignExpectations);
-
   const foreignExpectations = await kv.lrange<ForeignExpectation>(
     "foreignExpectations",
     0,
