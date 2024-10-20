@@ -95,18 +95,17 @@ export default function Home({
           return response.body?.getReader();
         })
         .then((reader) => {
-          reader?.read().then(read);
+          reader!.read().then(read);
 
           function read({
             done,
             value,
-          }: {
-            done: boolean;
-            value?: Uint8Array;
-          }) {
+          }: ReadableStreamReadResult<Uint8Array>): Promise<
+            ReadableStreamReadResult<Uint8Array>
+          > {
             if (done) {
               console.log("Stream complete");
-              return Promise.resolve();
+              return Promise.resolve({ done: true, value: undefined });
             }
 
             const decoder = new TextDecoder("iso-8859-1");
@@ -129,7 +128,7 @@ export default function Home({
 
             setForeignIntersection((prev) => prev + text);
 
-            return reader?.read().then(read);
+            return reader!.read().then(read);
           }
         });
 

@@ -124,7 +124,11 @@ export default function Dot({
     [app, metrics, position]
   );
 
-  const [dotProps, dotApi] = useSpring(() => {
+  const [dotProps, dotApi] = useSpring<{
+    position: [number, number];
+    alpha: number;
+    scale: [number, number];
+  }>(() => {
     return {
       from: { alpha: 0.5, scale: [2, 2] },
       to: { position, alpha: 1, scale: [1, 1] },
@@ -135,7 +139,12 @@ export default function Dot({
     };
   }, [position]);
 
-  const [textProps, textApi] = useSpring(
+  const [textProps, textApi] = useSpring<{
+    x: number;
+    y: number;
+    alpha: number;
+    scale: [number, number];
+  }>(
     () => ({
       from: { alpha: 0, scale: [0.5, 0.5] },
       to: {
