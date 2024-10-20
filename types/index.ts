@@ -17,6 +17,6 @@ export type ForeignExpectation2D = Omit<
 export type Intersection = {
   x: number;
   y: number;
-  text: string;
   foreignExpectationKeys: number[];
+  foreignExpectations: ForeignExpectation2D[];
 };

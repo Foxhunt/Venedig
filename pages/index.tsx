@@ -1,7 +1,7 @@
 import { ForeignExpectation2D, Intersection } from "@/types";
 
 import { GetStaticProps, InferGetStaticPropsType } from "next";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import Form from "@/components/Form";
 
@@ -58,8 +58,8 @@ export default function Home({
           if (intersection) {
             intersections.push({
               ...intersection,
-              text: `${currentElement.expectation} -> ${currentElement.experience} X ${otherElement.expectation} -> ${otherElement.experience}`,
               foreignExpectationKeys: [currentElement.key, otherElement.key],
+              foreignExpectations: [currentElement, otherElement],
             });
           }
         });
@@ -69,10 +69,41 @@ export default function Home({
   );
 
   const text =
-    "aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa";
+    "aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaaaaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaaaaa aaa aaa aaa aaa aaa aaa aaaaaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaaaaa aaa aaa aaa aaa aaa aaa aaaaaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaaaaa aaa aaa aaa aaa aaa aaa aaaaaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaaaaa aaa aaa aaa aaa aaa aaa aaaaaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaaaaa aaa aaa aaa aaa aaa aaa aaaaaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa";
 
   const [hoveredIntersection, setHoveredIntersection] =
     useState<Intersection>();
+
+  const [foreignIntersection, setForeignIntersection] = useState("");
+
+  useEffect(() => {
+    hoveredIntersection &&
+      fetch("/api/getForeignIntersection", {
+        method: "POST",
+        body: JSON.stringify({
+          pair1: [
+            hoveredIntersection?.foreignExpectations[0].expectation,
+            hoveredIntersection?.foreignExpectations[0].experience,
+          ],
+          pair2: [
+            hoveredIntersection?.foreignExpectations[1].expectation,
+            hoveredIntersection?.foreignExpectations[1].experience,
+          ],
+        }),
+      })
+        .then((response) => {
+          return response.arrayBuffer();
+        })
+        .then((buffer) => {
+          const decoder = new TextDecoder("iso-8859-1");
+          const text = decoder.decode(buffer);
+          setForeignIntersection(text);
+        });
+
+    return () => {
+      setForeignIntersection("");
+    };
+  }, [hoveredIntersection]);
 
   return (
     <>
@@ -126,13 +157,16 @@ export default function Home({
               />
             )
           )}
-          {intersections.map((intersection, index) => (
+          {intersections.map((intersection) => (
             <Dot
-              key={index}
+              key={intersection.foreignExpectationKeys.sort().join("")}
               position={[intersection.x, intersection.y]}
-              text={intersection.text}
+              text={
+                hoveredIntersection === intersection ? foreignIntersection : ""
+              }
               color={0xff8800}
               form="cross"
+              extPoninterOver={hoveredIntersection === intersection}
               extSetPointerOver={(isPointerOver) => {
                 isPointerOver
                   ? setHoveredIntersection(intersection)
@@ -147,7 +181,7 @@ export default function Home({
             text={text}
           />
 
-          <Dot position={[10, 10]} size={10} text={text} form="cross" />
+          <Dot position={[100, 10]} size={10} text={text} form="cross" />
           <Dot position={[1200, 670]} size={10} text={text} />
           <Dot position={[1220, 670]} size={10} text={text} />
         </Container>

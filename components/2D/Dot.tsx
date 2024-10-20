@@ -2,16 +2,18 @@ import {
   Dispatch,
   SetStateAction,
   useCallback,
+  useEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
 
-import { Container, Graphics, Text, useApp, Sprite } from "@pixi/react";
+import { Graphics, Text, useApp } from "@pixi/react";
 
-import { Circle, ColorSource, Rectangle, Texture } from "pixi.js";
-import { TextStyle, TextMetrics } from "@pixi/text";
 import { LINE_CAP, LINE_JOIN, Graphics as PixiGraphics } from "@pixi/graphics";
+import { Container } from "@pixi/react-animated";
+import { TextMetrics, TextStyle } from "@pixi/text";
+import { Circle, ColorSource, Rectangle } from "pixi.js";
+import { useSpring } from "react-spring";
 
 type DotProps = {
   position: [number, number];
@@ -74,6 +76,8 @@ export default function Dot({
     [color, extPoninterOver, form, poninterOver, size]
   );
 
+  const app = useApp();
+
   const style = useMemo(
     () =>
       new TextStyle({
@@ -94,7 +98,7 @@ export default function Dot({
         // dropShadowAngle: Math.PI / 6,
         // dropShadowDistance: 6,
         wordWrap: true,
-        wordWrapWidth: 300,
+        wordWrapWidth: 400,
       }),
     []
   );
@@ -104,50 +108,74 @@ export default function Dot({
     [style, text]
   );
 
-  const app = useApp();
+  const { offsetRight, offsetLeft, offsetBottom, offsetTop } = useMemo(
+    () => ({
+      offsetRight:
+        position[0] + metrics.width + 11 + 10 > app.screen.width
+          ? app.screen.width - (position[0] + metrics.width + 11 + 10)
+          : 0,
+      offsetLeft: 0,
+      offsetBottom:
+        position[1] + metrics.height - 20 + 5 > app.screen.height
+          ? app.screen.height - (position[1] + metrics.height - 20 + 2)
+          : 0,
+      offsetTop: position[1] - 20 < 0 ? 0 - (position[1] - 20) : 0,
+    }),
+    [app, metrics, position]
+  );
 
-  const wouldClipX = metrics.width + position[0] + 15 > app.screen.width;
-  const wouldClipY = metrics.height + position[1] - 22 > app.screen.height;
+  const [dotProps, dotApi] = useSpring(() => {
+    return {
+      from: { alpha: 0.5, scale: [2, 2] },
+      to: { position, alpha: 1, scale: [1, 1] },
+      config: {
+        tension: 19,
+        friction: 10,
+      },
+    };
+  }, [position]);
+
+  const [textProps, textApi] = useSpring(
+    () => ({
+      from: { alpha: 0, scale: [0.5, 0.5] },
+      to: {
+        x: 11 + offsetRight,
+        y: -20 + offsetTop + offsetBottom,
+        alpha: 1,
+        scale: [1, 1],
+      },
+    }),
+    [offsetRight, offsetTop, offsetBottom]
+  );
+
+  useEffect(() => {
+    if (extPoninterOver || poninterOver) {
+      textApi.start({ reset: true });
+    }
+  }, [dotApi, extPoninterOver, poninterOver, textApi]);
 
   return (
-    <Container
-      position={position}
-      zIndex={extPoninterOver || poninterOver ? 999 : 0}
-    >
+    <Container {...dotProps} zIndex={extPoninterOver || poninterOver ? 999 : 0}>
       <Graphics
         draw={draw}
-        // alpha={extPoninterOver || poninterOver ? 1 : 0.9}
         onpointerenter={() => handlePointer(true)}
         onpointerleave={() => handlePointer(false)}
         hitArea={new Circle(0, 0, 10)}
       />
       {(extPoninterOver || poninterOver) && (
-        <>
-          <Sprite
-            texture={Texture.WHITE}
-            tint={0xd0d0d0}
-            width={metrics.width + 10}
-            height={metrics.height}
-            position={[wouldClipX ? -10 : 10, wouldClipY ? 16 : -22]}
-            anchor={[wouldClipX ? 1 : 0, wouldClipY ? 1 : 0]}
+        <Container {...textProps}>
+          <Graphics
+            draw={(g) => {
+              g.clear();
+              g.beginFill(0xd0d0d0);
+              g.drawRoundedRect(0, 0, metrics.width + 10, metrics.height, 5);
+            }}
             alpha={0.9}
+            hitArea={new Rectangle(0, 0, 0, 0)}
+            eventMode="none"
           />
-          {/* <Graphics
-            draw={(g) => {}}
-            width={metrics.width}
-            height={metrics.height}
-            position={[wouldClipX ? -15 : 15, wouldClipY ? 16 : -22]}
-            anchor={[wouldClipX ? 1 : 0, wouldClipY ? 1 : 0]}
-            alpha={0.9}
-          /> */}
-          <Text
-            text={text}
-            position={[wouldClipX ? -15 : 15, wouldClipY ? 16 : -22]}
-            anchor={[wouldClipX ? 1 : 0, wouldClipY ? 1 : 0]}
-            angle={0}
-            style={style}
-          />
-        </>
+          <Text text={text} x={5} style={style} />
+        </Container>
       )}
     </Container>
   );

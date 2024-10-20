@@ -37,7 +37,7 @@ export async function getForeignExpectationsFromKvList(): Promise<
       min_dist: 1,
       // local_connectivity: 1,
       // seed: 0,
-      // _spread: 0.4,
+      // _spread: 1,
       // metric: cosine,
     });
 

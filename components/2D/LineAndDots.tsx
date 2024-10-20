@@ -66,6 +66,7 @@ export default function LineAndDots({
         />
       )}
       <Dot
+        key={"s" + expectation}
         text={expectation}
         position={start}
         color={expectationColor}
@@ -74,6 +75,7 @@ export default function LineAndDots({
         extSetPointerOver={setPointerOver}
       />
       <Dot
+        key={"e" + experience}
         text={experience}
         position={end}
         color={experienceColor}
