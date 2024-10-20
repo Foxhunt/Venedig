@@ -12,7 +12,10 @@ export default async function getForeignIntersection(
     pair2
   );
 
-  foreignIntersection.pipeDataStreamToResponse(response);
+  foreignIntersection.pipeDataStreamToResponse(response, {
+    sendUsage: false,
+    init: { status: 200 },
+  });
 
   //   response
   //     .status(200)

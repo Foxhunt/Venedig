@@ -92,12 +92,45 @@ export default function Home({
         }),
       })
         .then((response) => {
-          return response.arrayBuffer();
+          return response.body?.getReader();
         })
-        .then((buffer) => {
-          const decoder = new TextDecoder("iso-8859-1");
-          const text = decoder.decode(buffer);
-          setForeignIntersection(text);
+        .then((reader) => {
+          reader?.read().then(read);
+
+          function read({
+            done,
+            value,
+          }: {
+            done: boolean;
+            value?: Uint8Array;
+          }) {
+            if (done) {
+              console.log("Stream complete");
+              return Promise.resolve();
+            }
+
+            const decoder = new TextDecoder("iso-8859-1");
+            const chunk = decoder.decode(value);
+            const text = chunk
+              .split("\n")
+              .filter((line) => line.startsWith("0:"))
+              .map((line) =>
+                line
+                  .slice(2)
+                  .replaceAll('"', "")
+                  .replaceAll("Ã¤", "ä")
+                  .replaceAll("Ã¶", "ö")
+                  .replaceAll("Ã¼", "ü")
+                  .replaceAll("ÃŸ", "ß")
+              )
+              .join("");
+
+            console.log(text);
+
+            setForeignIntersection((prev) => prev + text);
+
+            return reader?.read().then(read);
+          }
         });
 
     return () => {
