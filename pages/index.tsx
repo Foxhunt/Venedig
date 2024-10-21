@@ -212,7 +212,7 @@ export default function Home({
               />
             ))}
 
-            <Dot
+            {/* <Dot
               position={[0.5 * stageWidth, 0.5 * stageHeight]}
               size={10}
               text={text}
@@ -220,7 +220,7 @@ export default function Home({
 
             <Dot position={[100, 10]} size={10} text={text} form="cross" />
             <Dot position={[1200, 670]} size={10} text={text} />
-            <Dot position={[1220, 670]} size={10} text={text} />
+            <Dot position={[1220, 670]} size={10} text={text} /> */}
           </Container>
         </LabelContext>
       </Stage>
