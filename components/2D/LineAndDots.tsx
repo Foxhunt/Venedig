@@ -36,20 +36,11 @@ export default function LineAndDots({
   const endY = end[1] - distanceFromDotCenterToLineEnd * Math.sin(LineAngle);
   const lineEnd: [number, number] = [endX, endY];
 
-  const expectationColor = useMemo(
+  const color = useMemo(
     () => ({
       h: 360 * Math.random(),
       s: 50 + 50 * Math.random(),
-      l: 30 + 30 * Math.random(),
-    }),
-    []
-  );
-
-  const experienceColor = useMemo(
-    () => ({
-      h: 360 * Math.random(),
-      s: 50 + 50 * Math.random(),
-      l: 30 + 30 * Math.random(),
+      l: 45 + 30 * Math.random(),
     }),
     []
   );
@@ -69,7 +60,7 @@ export default function LineAndDots({
         key={"s" + expectation}
         text={expectation}
         position={start}
-        color={expectationColor}
+        color={color}
         size={8}
         extPoninterOver={poninterOver || extPointerOver}
         extSetPointerOver={setPointerOver}
@@ -78,7 +69,7 @@ export default function LineAndDots({
         key={"e" + experience}
         text={experience}
         position={end}
-        color={experienceColor}
+        color={color}
         size={8}
         extPoninterOver={poninterOver || extPointerOver}
         extSetPointerOver={setPointerOver}
