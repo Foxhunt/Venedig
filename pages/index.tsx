@@ -28,6 +28,8 @@ export const getStaticProps = (async () => {
   foreignExpectations: ForeignExpectation2D[];
 }>;
 
+const padding = 30;
+
 export default function Home({
   foreignExpectations: initialForeignExpectations,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
@@ -47,14 +49,29 @@ export default function Home({
 
         remainingElements.forEach((otherElement) => {
           const intersection = intersect(
-            currentElement.expectationEmbedding2D[0] * stageWidth,
-            currentElement.expectationEmbedding2D[1] * stageHeight,
-            currentElement.experienceEmbedding2D[0] * stageWidth,
-            currentElement.experienceEmbedding2D[1] * stageHeight,
-            otherElement.expectationEmbedding2D[0] * stageWidth,
-            otherElement.expectationEmbedding2D[1] * stageHeight,
-            otherElement.experienceEmbedding2D[0] * stageWidth,
-            otherElement.experienceEmbedding2D[1] * stageHeight
+            currentElement.expectationEmbedding2D[0] *
+              (stageWidth - padding * 2) +
+              padding,
+            currentElement.expectationEmbedding2D[1] *
+              (stageHeight - padding * 2) +
+              padding,
+            currentElement.experienceEmbedding2D[0] *
+              (stageWidth - padding * 2) +
+              padding,
+            currentElement.experienceEmbedding2D[1] *
+              (stageHeight - padding * 2) +
+              padding,
+            otherElement.expectationEmbedding2D[0] *
+              (stageWidth - padding * 2) +
+              padding,
+            otherElement.expectationEmbedding2D[1] *
+              (stageHeight - padding * 2) +
+              padding,
+            otherElement.experienceEmbedding2D[0] * (stageWidth - padding * 2) +
+              padding,
+            otherElement.experienceEmbedding2D[1] *
+              (stageHeight - padding * 2) +
+              padding
           );
 
           if (intersection) {
@@ -126,8 +143,6 @@ export default function Home({
               )
               .join("");
 
-            console.log(text);
-
             setForeignIntersection((prev) => prev + text);
 
             return reader!.read().then(read);
@@ -149,7 +164,7 @@ export default function Home({
           eventMode: "static",
           clearBeforeRender: true,
           preserveDrawingBuffer: false,
-          backgroundColor: 0x000000,
+          backgroundColor: 0xffffff,
         }}
         onMount={(app) => {
           initDevtools({ app });
@@ -182,12 +197,16 @@ export default function Home({
                   expectation={expectation}
                   experience={experience}
                   start={[
-                    expectationEmbedding2D[0] * stageWidth,
-                    expectationEmbedding2D[1] * stageHeight,
+                    expectationEmbedding2D[0] * (stageWidth - padding * 2) +
+                      padding,
+                    expectationEmbedding2D[1] * (stageHeight - padding * 2) +
+                      padding,
                   ]}
                   end={[
-                    experienceEmbedding2D[0] * stageWidth,
-                    experienceEmbedding2D[1] * stageHeight,
+                    experienceEmbedding2D[0] * (stageWidth - padding * 2) +
+                      padding,
+                    experienceEmbedding2D[1] * (stageHeight - padding * 2) +
+                      padding,
                   ]}
                 />
               )
