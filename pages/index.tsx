@@ -95,8 +95,12 @@ export default function Home({
 
   const [foreignIntersection, setForeignIntersection] = useState("");
 
+  const [isFetching, setIsFetching] = useState(false);
+
   useEffect(() => {
-    hoveredIntersection &&
+    if (hoveredIntersection && !isFetching && foreignIntersection === "") {
+      setIsFetching(true);
+
       fetch("/api/getForeignIntersection", {
         method: "POST",
         body: JSON.stringify({
@@ -124,23 +128,17 @@ export default function Home({
           > {
             if (done) {
               console.log("Stream complete");
+              setIsFetching(false);
+              setForeignIntersection((prev) => prev + ".");
               return Promise.resolve({ done: true, value: undefined });
             }
 
-            const decoder = new TextDecoder("iso-8859-1");
+            const decoder = new TextDecoder("utf-8");
             const chunk = decoder.decode(value);
             const text = chunk
               .split("\n")
               .filter((line) => line.startsWith("0:"))
-              .map((line) =>
-                line
-                  .slice(2)
-                  .replaceAll('"', "")
-                  .replaceAll("Ã¤", "ä")
-                  .replaceAll("Ã¶", "ö")
-                  .replaceAll("Ã¼", "ü")
-                  .replaceAll("ÃŸ", "ß")
-              )
+              .map((line) => line.slice(2).replaceAll('"', ""))
               .join("");
 
             setForeignIntersection((prev) => prev + text);
@@ -148,11 +146,14 @@ export default function Home({
             return reader!.read().then(read);
           }
         });
+    }
 
     return () => {
-      setForeignIntersection("");
+      if (!isFetching && foreignIntersection !== "") {
+        setForeignIntersection("");
+      }
     };
-  }, [hoveredIntersection]);
+  }, [foreignIntersection, hoveredIntersection, isFetching]);
 
   return (
     <>
