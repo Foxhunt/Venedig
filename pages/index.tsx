@@ -23,7 +23,7 @@ export const getStaticProps = (async () => {
     await getForeignExpectationsFromKvList();
 
   // Pass data to the page via props
-  return { props: { foreignExpectations } };
+  return { props: { foreignExpectations }, revalidate: 10 };
 }) satisfies GetStaticProps<{
   foreignExpectations: ForeignExpectation2D[];
 }>;
