@@ -32,11 +32,11 @@ export async function getForeignExpectationsFromKvList(): Promise<
   if (embeddings.length > 0) {
     const reduction = new UMAP(embeddings, {
       n_neighbors: 10,
-      min_dist: 1,
-      // local_connectivity: 1,
+      min_dist: 0.0000001,
+      local_connectivity: 0.000001,
       // seed: 0,
       // _spread: 1,
-      // metric: cosine,
+      metric: euclidean_squared,
     });
 
     const projection: [number, number][] = reduction.transform();
