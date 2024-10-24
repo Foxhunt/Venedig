@@ -16,11 +16,15 @@ import { kv } from "@vercel/kv";
 export async function getForeignExpectationsFromKvList(): Promise<
   ForeignExpectation2D[]
 > {
-  const foreignExpectations = await kv.lrange<ForeignExpectation>(
-    "foreignExpectations",
-    0,
-    -1
-  );
+  const listLength = await kv.llen("foreignExpectations");
+
+  const chunks = [];
+
+  for (let n = 0; n < listLength; n++) {
+    chunks.push(kv.lindex("foreignExpectations", n));
+  }
+
+  const foreignExpectations = await Promise.all(chunks);
 
   const embeddings = foreignExpectations.flatMap(
     ({ expectationEmbedding, experienceEmbedding }) => [
